@@ -6,4 +6,4 @@
 - Новости с 2024-09-01 по 2024-10-31
 - Один период составляет три дня
 
-Код для сбора данных лежит [этом ноутбуке](https://github.com/CrazyBadRedCat/ReputationRadar/blob/main/data_collection.ipynb). В нём используется написанная нами библиотека для парсинга новостных сайтов.
+Код для сбора данных лежит [этом ноутбуке](https://github.com/CrazyBadRedCat/ReputationRadar/blob/main/notebooks/data_collection.ipynb). В нём используется написанная нами библиотека для парсинга новостных сайтов.

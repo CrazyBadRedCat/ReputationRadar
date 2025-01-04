@@ -49,7 +49,7 @@ class ModelsDispatcher:
         else:
             raise ValueError(f"Unknown model_id: '{model_id}'")
 
-    def wait_for_training(self, model_id: str, timeout: int = 10):
+    def wait_for_training(self, model_id: str, timeout: int = 600):
         """
         Wait for the training to complete until the timeout happens.
         """

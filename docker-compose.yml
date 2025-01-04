@@ -1,0 +1,27 @@
+version: "3.8"
+services:
+  server:
+    build:
+      context: ./server
+    container_name: ml_server
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./logs:/logs
+      - ./server_data/models:/models
+      - ./server_data/datasets:/datasets
+      - ./server_data/data:/data
+    restart: always
+  client:
+    build:
+      context: ./client
+    container_name: streamlit_client
+    depends_on:
+      - server
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./logs:/logs
+    restart: always
+    environment:
+      SERVER_URL: http://server:8000

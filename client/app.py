@@ -2,7 +2,7 @@ import streamlit as st
 import logging.handlers
 import os
 
-LOG_DIR = "./logs"
+LOG_DIR = "/logs"
 LOG_FILE = os.path.join(LOG_DIR, "streamlit_app.log")
 MAX_BYTES = 10 * 1024 * 1024  # 10 MB
 BACKUP_COUNT = 5

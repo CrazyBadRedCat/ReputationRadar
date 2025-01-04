@@ -1,0 +1,4 @@
+logs/
+server_data/
+
+__pycache__/

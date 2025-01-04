@@ -1,0 +1,320 @@
+openapi: 3.0.0
+info:
+  title: ml_server
+  version: 0.2.0
+paths:
+  /:
+    get:
+      summary: Root
+      operationId: root__get
+      description: Information about the service status.
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+  /api/v1/models/fit/upload_csv:
+    post:
+      tags:
+        - ml_server
+      summary: Upload CSV for model training
+      description: Uploads a CSV file and returns the operation ID.
+      operationId: fit_api_v1_models_fit_upload_csv_post
+      parameters:
+        - name: operation_id
+          in: query
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          text/csv:
+            schema:
+              type: string
+              format: binary
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FitUploadCSVResponse'
+  /api/v1/models/fit:
+    post:
+      tags:
+        - ml_server
+      summary: Fit
+      description: Train a model with the specified configuration.
+      operationId: fit_api_v1_models_fit_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FitRequest'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FitResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/models/predict:
+    post:
+      tags:
+        - ml_server
+      summary: Predict
+      description: Perform predictions using the provided data.
+      operationId: predict_api_v1_models_predict_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PredictRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PredictResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/models/set:
+    post:
+      tags:
+        - ml_server
+      summary: Set active model
+      description: Устанавливает активную модель.
+      operationId: set_api_v1_models_set_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/models/models:
+    get:
+      tags:
+        - ml_server
+      summary: List Models
+      description: Возвращает список текущих моделей на сервере.
+      operationId: models_api_v1_models_models_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelGetResponse'
+components:
+  schemas:
+    FitUploadCSVResponse:
+      properties:
+        operation_id:
+          type: string
+          title: Operation ID
+      type: object
+      required:
+        - operation_id
+      title: FitUploadCSVResponse
+    FitRequest:
+      properties:
+        id:
+          type: string
+          title: Model ID
+        operation_id:
+          type: string
+          title: Operation ID
+        hyperparameters:
+          oneOf:
+            - $ref: '#/components/schemas/BaselineHyperparameters'
+          title: Hyperparameters
+      type: object
+      required:
+        - id
+        - operation_id
+      title: FitRequest
+    BaselineHyperparameters:
+      type: object
+      properties:
+        penalty:
+          type: array
+          items:
+            type: string
+            enum: ["l1", "l2"]
+        dual:
+          type: array
+          items:
+            type: boolean
+        C:
+          type: array
+          items:
+            type: number
+        class_weight:
+          type: array
+          items:
+            type: object
+            additionalProperties:
+              type: number
+      required:
+        - penalty
+        - dual
+        - C
+        - class_weight
+      title: LinearHyperparameters
+    FitResponse:
+      properties:
+        message:
+          type: string
+          title: Message
+      type: object
+      required:
+        - message
+      title: FitResponse
+      example:
+        - message: Model 'model_name' trained and saved
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    SetRequest:
+      properties:
+        id:
+          type: string
+          title: model_id
+      type: object
+      required:
+        - id
+      title: SetRequest
+    SetResponse:
+      properties:
+        message:
+          type: string
+          title: Message
+      type: object
+      required:
+        - message
+      title: SetResponse
+      example:
+        - message: Model 'model_id' loaded
+    ModelGetResponse:
+      properties:
+        models:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                title: Model ID
+              status:
+                type: string
+                title: Model Status
+          title: Models
+      type: object
+      required:
+        - models
+      title: ModelGetResponse
+    PredictRequest:
+      properties:
+        X:
+          items:
+            type: string
+          type: array
+      type: object
+      required:
+        - X
+      title: PredictRequest
+    PredictResponse:
+      properties:
+        texts:
+          type: array
+          items:
+            type: string
+          title: Input Texts
+        predictions:
+          type: array
+          items:
+            type: number
+          title: Predictions
+        probabilities:
+          type: array
+          items:
+            type: array
+            items:
+              type: number
+          title: Prediction Probabilities
+      type: object
+      required:
+        - texts
+        - predictions
+        - probabilities
+      title: PredictResponse
+      example:
+        - predictions:
+            - 9
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+              - type: string
+              - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+        - loc
+        - msg
+        - type
+      title: ValidationError
+    StatusResponse:
+      properties:
+        status:
+          type: string
+          title: Status
+      type: object
+      required:
+        - status
+      title: StatusResponse
+      example:
+        - status: App is on and running!
